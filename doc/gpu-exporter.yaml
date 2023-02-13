@@ -1,3 +1,60 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: "gpu-exporter"
+  namespace: "kube-system"
+  labels:
+    app.kubernetes.io/name: "gpu-exporter"
+    app.kubernetes.io/version: "1.0.0"
+spec:
+  updateStrategy:
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: "gpu-exporter"
+      app.kubernetes.io/version: "1.0.0"
+  template:
+    metadata:
+      annotations:
+        prometheus.io/scrape: 'true'
+        prometheus.io/port: &portStr '9103'
+        prometheus.io/path: 'metrics'
+      labels:
+        app.kubernetes.io/name: "gpu-exporter"
+        app.kubernetes.io/version: "1.0.0"
+      name: "gpu-exporter"
+    spec:
+      hostNetwork: true
+      containers:
+        - image: "192.168.1.186:8099/evtrain/cvmart-gpu-exporter:v1"
+          securityContext:
+            privileged: true
+          env:
+            - name: "EXPORTER_LISTEN"
+              value: *portStr
+            - name: "EXPORTER_KUBERNETES"
+              value: "true"
+          name: "gpu-exporter"
+          ports:
+            - name: "metrics"
+              containerPort: &portInt '9103'
+              hostPort: *portInt
+---
 
-
-
+kind: Service
+apiVersion: v1
+metadata:
+  name: "gpu-exporter"
+  annotations:
+    prometheus.io/scrape: "true"
+  labels:
+    app.kubernetes.io/name: "gpu-exporter"
+    app.kubernetes.io/version: "1.0.0"
+spec:
+  selector:
+    app.kubernetes.io/name: "gpu-exporter"
+    app.kubernetes.io/version: "1.0.0"
+  ports:
+    - name: "metrics"
+      port: 9103
+  type: NodePort
