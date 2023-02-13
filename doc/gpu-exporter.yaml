@@ -17,7 +17,7 @@ spec:
     metadata:
       annotations:
         prometheus.io/scrape: 'true'
-        prometheus.io/port: &portStr '9103'
+        prometheus.io/port: &portStr ':9103'
         prometheus.io/path: 'metrics'
       labels:
         app.kubernetes.io/name: "gpu-exporter"

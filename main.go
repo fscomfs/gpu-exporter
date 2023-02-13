@@ -16,6 +16,7 @@ import (
 	stdLog "log"
 	"net/http"
 	_ "net/http/pprof"
+	"os"
 )
 
 const (
@@ -46,7 +47,12 @@ func main() {
 	for n, p := range collector.Collectors {
 		stdLog.Printf("register name:%+v,process:%+v", n, p)
 		reg.MustRegister(p)
+	}
 
+	evnListen := os.Getenv("EXPORTER_LISTEN")
+	listenAddr := *addr
+	if evnListen != "" {
+		listenAddr = evnListen
 	}
 	promlogConfig := &promlog.Config{}
 	logger := promlog.New(promlogConfig)
@@ -54,7 +60,7 @@ func main() {
 	http.Handle("/", rootHandler)
 	// Expose /metrics HTTP endpoint using the created custom registry.
 	http.Handle("/metrics", promhttp.HandlerFor(reg, promhttp.HandlerOpts{Registry: reg}))
-	http.ListenAndServe(*addr, nil)
+	http.ListenAndServe(listenAddr, nil)
 }
 
 type RootHandler struct {
