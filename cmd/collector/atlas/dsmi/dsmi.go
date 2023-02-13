@@ -45,8 +45,8 @@ func AllDeviceInfo() (map[int32]AtlasInfo, error) {
 					Total:    uint32(memInfo.memory_size),
 					Used:     int32(s),
 					CoreRate: uint32(putilization_rate),
-					ChipName: string(chipInfo.chip_name),
-					ChipType: string(chipInfo.chip_type),
+					ChipName: C.GoStringN((*C.char)(unsafe.Pointer(&chipInfo.chip_name[0])), 32),
+					ChipType: C.GoStringN((*C.char)(unsafe.Pointer(&chipInfo.chip_type[0])), 32),
 				}
 				infos[v] = info
 			}

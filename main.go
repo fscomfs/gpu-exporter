@@ -4,13 +4,16 @@ import (
 	"flag"
 	"fmt"
 	"github.com/fscomfs/gpu-exporter/cmd/collector"
+	_ "github.com/fscomfs/gpu-exporter/cmd/collector/atlas"
 	_ "github.com/fscomfs/gpu-exporter/cmd/collector/nvidia"
+	_ "github.com/fscomfs/gpu-exporter/cmd/collector/test"
 	"github.com/go-kit/log"
 	"github.com/go-kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/collectors"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/prometheus/common/promlog"
+	stdLog "log"
 	"net/http"
 	_ "net/http/pprof"
 )
@@ -40,8 +43,10 @@ func main() {
 		collectors.NewGoCollector(),
 		collectors.NewProcessCollector(collectors.ProcessCollectorOpts{}),
 	)
-	for _, p := range collector.Collectors {
+	for n, p := range collector.Collectors {
+		stdLog.Printf("register name:%+v,process:%+v", n, p)
 		reg.MustRegister(p)
+
 	}
 	promlogConfig := &promlog.Config{}
 	logger := promlog.New(promlogConfig)
