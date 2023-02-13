@@ -21,6 +21,9 @@ func init() {
 		}
 	}()
 	dsmi.Init()
+	collector.Register("npu", new())
+	log.Printf("dsmi init success")
+
 }
 
 type AtlasExporter struct {
@@ -63,11 +66,11 @@ func (e *AtlasExporter) Collect(metricCh chan<- prometheus.Metric) {
 		if err == nil {
 			for deviceIndex, deviceInfo := range allInfo {
 				usedMemory := deviceInfo.CoreRate * deviceInfo.Total / 100
-				used := prometheus.MustNewConstMetric(e.gpuInfoDesc, prometheus.GaugeValue, float64(usedMemory), string(deviceIndex), collector.MemoryUsed, deviceInfo.ChipName, collector.NPU)
+				used := prometheus.MustNewConstMetric(e.gpuInfoDesc, prometheus.GaugeValue, float64(usedMemory), string(deviceIndex), collector.MemoryFree, deviceInfo.ChipName, collector.NPU)
 				metricCh <- used
 				free := prometheus.MustNewConstMetric(e.gpuInfoDesc, prometheus.GaugeValue, float64(deviceInfo.Total-usedMemory), cast.ToString(deviceIndex), collector.MemoryUsed, deviceInfo.ChipName, collector.NPU)
 				metricCh <- free
-				total := prometheus.MustNewConstMetric(e.gpuInfoDesc, prometheus.GaugeValue, float64(deviceInfo.Total), string(deviceIndex), collector.MemoryUsed, deviceInfo.ChipName, collector.NPU)
+				total := prometheus.MustNewConstMetric(e.gpuInfoDesc, prometheus.GaugeValue, float64(deviceInfo.Total), string(deviceIndex), collector.MemoryTotal, deviceInfo.ChipName, collector.NPU)
 				metricCh <- total
 			}
 		}

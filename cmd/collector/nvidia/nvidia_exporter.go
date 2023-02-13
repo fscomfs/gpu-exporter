@@ -16,14 +16,13 @@ var disabledFlag = false
 func init() {
 	defer func() {
 		if error := recover(); error != nil {
+			disabledFlag = true
 			log.Printf("nvml init fail %+v", error)
 		}
 	}()
 	r := nvml.Init()
 	if r == nvml.SUCCESS {
-		disabledFlag = true
-		c := new()
-		collector.Register("nvidia", c)
+		collector.Register("nvidia", new())
 	} else {
 		log.Printf("nvml init fail")
 	}
@@ -63,6 +62,7 @@ func (e *NvidiaExporter) Collect(metricCh chan<- prometheus.Metric) {
 	if disabledFlag {
 		return
 	}
+	log.Printf("collect nvidia")
 	deviceCount, r := nvml.DeviceGetCount()
 	if r == nvml.SUCCESS {
 		for i := 0; i < deviceCount; i++ {
@@ -71,11 +71,11 @@ func (e *NvidiaExporter) Collect(metricCh chan<- prometheus.Metric) {
 			if r == nvml.SUCCESS {
 				memory, _ := nvml.DeviceGetMemoryInfo(deviceHandler)
 				name, _ := nvml.DeviceGetName(deviceHandler)
-				free := prometheus.MustNewConstMetric(e.gpuInfoDesc, prometheus.GaugeValue, float64(memory.Free), cast.ToString(i), collector.MemoryUsed, name, collector.Nvidia)
+				free := prometheus.MustNewConstMetric(e.gpuInfoDesc, prometheus.GaugeValue, float64(memory.Free), cast.ToString(i), collector.MemoryFree, name, collector.Nvidia)
 				metricCh <- free
 				used := prometheus.MustNewConstMetric(e.gpuInfoDesc, prometheus.GaugeValue, float64(memory.Used), cast.ToString(i), collector.MemoryUsed, name, collector.Nvidia)
 				metricCh <- used
-				total := prometheus.MustNewConstMetric(e.gpuInfoDesc, prometheus.GaugeValue, float64(memory.Total), cast.ToString(i), collector.MemoryUsed, name, collector.Nvidia)
+				total := prometheus.MustNewConstMetric(e.gpuInfoDesc, prometheus.GaugeValue, float64(memory.Total), cast.ToString(i), collector.MemoryTotal, name, collector.Nvidia)
 				metricCh <- total
 			}
 		}
