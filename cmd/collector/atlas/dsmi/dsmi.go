@@ -24,7 +24,7 @@ func AllDeviceInfo() (map[int32]AtlasInfo, error) {
 	infos := make(map[int32]AtlasInfo)
 	deviceCount := 0
 	ret := C.dsmi_get_device_count((*C.int)(unsafe.Pointer(&deviceCount)))
-	if ret == 0 {
+	if ret != 0 {
 		fmt.Println(deviceCount)
 		return infos, fmt.Errorf("device count=0")
 	}
