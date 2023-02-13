@@ -5,6 +5,7 @@ import (
 	"github.com/NVIDIA/go-nvml/pkg/nvml"
 	"github.com/fscomfs/gpu-exporter/cmd/collector"
 	"github.com/prometheus/client_golang/prometheus"
+	"github.com/spf13/cast"
 	"log"
 	"strings"
 	"sync"
@@ -70,11 +71,11 @@ func (e *NvidiaExporter) Collect(metricCh chan<- prometheus.Metric) {
 			if r == nvml.SUCCESS {
 				memory, _ := nvml.DeviceGetMemoryInfo(deviceHandler)
 				name, _ := nvml.DeviceGetName(deviceHandler)
-				free := prometheus.MustNewConstMetric(e.gpuInfoDesc, prometheus.GaugeValue, float64(memory.Free), string(i), collector.MemoryUsed, name, collector.Nvidia)
+				free := prometheus.MustNewConstMetric(e.gpuInfoDesc, prometheus.GaugeValue, float64(memory.Free), cast.ToString(i), collector.MemoryUsed, name, collector.Nvidia)
 				metricCh <- free
-				used := prometheus.MustNewConstMetric(e.gpuInfoDesc, prometheus.GaugeValue, float64(memory.Used), string(i), collector.MemoryUsed, name, collector.Nvidia)
+				used := prometheus.MustNewConstMetric(e.gpuInfoDesc, prometheus.GaugeValue, float64(memory.Used), cast.ToString(i), collector.MemoryUsed, name, collector.Nvidia)
 				metricCh <- used
-				total := prometheus.MustNewConstMetric(e.gpuInfoDesc, prometheus.GaugeValue, float64(memory.Total), string(i), collector.MemoryUsed, name, collector.Nvidia)
+				total := prometheus.MustNewConstMetric(e.gpuInfoDesc, prometheus.GaugeValue, float64(memory.Total), cast.ToString(i), collector.MemoryUsed, name, collector.Nvidia)
 				metricCh <- total
 			}
 		}

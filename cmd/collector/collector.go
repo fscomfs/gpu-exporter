@@ -13,6 +13,7 @@ const (
 	UtilizationGpu           = "utilization.memory"
 	UtilizationMemory        = "utilization.memory"
 	Nvidia                   = "nvidia"
+	NPU                      = "npu"
 	Index             QField = "index"
 	Model             QField = "model"
 	GpuType           QField = "gpuType"
