@@ -14,10 +14,12 @@ const (
 	UtilizationMemory        = "utilization.memory"
 	Nvidia                   = "nvidia"
 	NPU                      = "npu"
+	TPU                      = "tpu"
 	Index             QField = "index"
 	Model             QField = "model"
 	GpuType           QField = "gpuType"
 	Arg               QField = "arg"
+	ARCH              QField = "arch"
 )
 
 var (
@@ -33,6 +35,7 @@ var (
 		{qField: Arg, label: "arg"},
 		{qField: Model, label: "model"},
 		{qField: GpuType, label: "gpuType"},
+		{qField: ARCH, label: "arch"},
 	}
 )
 
