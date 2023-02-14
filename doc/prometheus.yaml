@@ -3,21 +3,21 @@ kind: ClusterRole
 metadata:
   name: prometheus
 rules:
-- apiGroups: [""]
-  resources:
-  - nodes
-  - nodes/proxy
-  - services
-  - endpoints
-  - pods
-  verbs: ["get", "list", "watch"]
-- apiGroups:
-  - extensions
-  resources:
-  - ingresses
-  verbs: ["get", "list", "watch"]
-- nonResourceURLs: ["/metrics"]
-  verbs: ["get"]
+  - apiGroups: [""]
+    resources:
+      - nodes
+      - nodes/proxy
+      - services
+      - endpoints
+      - pods
+    verbs: ["get", "list", "watch"]
+  - apiGroups:
+      - extensions
+    resources:
+      - ingresses
+    verbs: ["get", "list", "watch"]
+  - nonResourceURLs: ["/metrics"]
+    verbs: ["get"]
 ---
 apiVersion: v1
 kind: ServiceAccount
@@ -34,9 +34,9 @@ roleRef:
   kind: ClusterRole
   name: prometheus
 subjects:
-- kind: ServiceAccount
-  name: prometheus
-  namespace: default
+  - kind: ServiceAccount
+    name: prometheus
+    namespace: default
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -213,48 +213,51 @@ spec:
         app: prometheus-dep
     spec:
       initContainers:
-      - name: init-sysctl
-        volumeMounts:
-        - mountPath: "/prometheus"
-          name: data
-        image: busybox:1.27
-        command: ["sh", "-c", "chown -R 65534.65534 /prometheus"]
-        securityContext:
-          privileged: true
+        - name: init-sysctl
+          volumeMounts:
+            - mountPath: "/prometheus"
+              name: data
+          image: busybox:1.27
+          command: ["sh", "-c", "chown -R 65534.65534 /prometheus"]
+          securityContext:
+            privileged: true
+      nodeSelector:
+        app: prometheus
       containers:
-      - image: prom/prometheus:v2.3.2
-        name: prometheus
-        command:
-        - "/bin/prometheus"
-        args:
-        - "--config.file=/etc/prometheus/prometheus.yml"
-        - "--storage.tsdb.path=/prometheus"
-        - "--storage.tsdb.retention=1d"
-        ports:
-        - containerPort: 9090
-          protocol: TCP
-        volumeMounts:
-        - mountPath: "/prometheus"
-          name: data
-        - mountPath: "/etc/prometheus"
-          name: config-volume
-        resources:
-          requests:
-            cpu: 100m
-            memory: 100Mi
-          limits:
-            cpu: 500m
-            memory: 2500Mi
+        - image: prom/prometheus:v2.3.2
+          name: prometheus
+          command:
+            - "/bin/prometheus"
+          args:
+            - "--config.file=/etc/prometheus/prometheus.yml"
+            - "--storage.tsdb.path=/prometheus"
+            - "--storage.tsdb.retention=1d"
+          ports:
+            - containerPort: 9090
+              protocol: TCP
+          volumeMounts:
+            - mountPath: "/prometheus"
+              name: data
+            - mountPath: "/etc/prometheus"
+              name: config-volume
+          resources:
+            requests:
+              cpu: 100m
+              memory: 100Mi
+            limits:
+              cpu: 500m
+              memory: 2500Mi
       serviceAccountName: prometheus
       imagePullSecrets:
         - name: regsecret
       volumes:
-      - name: data
-        persistentVolumeClaim:
-          claimName: promethreus-data
-      - name: config-volume
-        configMap:
-          name: prometheus-config
+        - name: data
+          persistentVolumeClaim:
+            claimName: promethreus-data
+        - name: config-volume
+          configMap:
+            name: prometheus-config
+
 ---
 kind: PersistentVolumeClaim
 apiVersion: v1
@@ -262,12 +265,17 @@ metadata:
   name: promethreus-data
   annotations:
     volume.beta.kubernetes.io/storage-class: "managed-nfs-storage"
+    #volume.beta.kubernetes.io/storage-class: "csi-minio"
 spec:
   accessModes:
-    - ReadWriteOnce
+    #- ReadWriteOnce
+    - ReadWriteMany
   resources:
     requests:
       storage: 10Gi
+  #storageClassName: csi-minio
+  storageClassName: managed-nfs-storage
+
 ---
 kind: Service
 apiVersion: v1
@@ -276,9 +284,9 @@ metadata:
   namespace: default
 spec:
   ports:
-  - port: 9090
-    targetPort: 9090
-    nodePort: 30755
+    - port: 9090
+      targetPort: 9090
+      nodePort: 30755
   type:
     NodePort
   selector:

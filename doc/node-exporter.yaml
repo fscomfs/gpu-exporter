@@ -1,0 +1,118 @@
+kind: Service
+apiVersion: v1
+metadata:
+  annotations:
+    prometheus.io/scrape: 'true'
+  labels:
+    app: node-exporter
+  name: node-exporter
+spec:
+  clusterIP: None
+  ports:
+    - name: scrape
+      port: 9101
+      protocol: TCP
+  selector:
+    app: node-gpu-exporter
+  type: ClusterIP
+---
+kind: DaemonSet
+apiVersion: apps/v1
+metadata:
+  name: node-exporter
+spec:
+  selector:
+    matchLabels:
+      app: node-exporter
+  template:
+    metadata:
+      labels:
+        app: node-exporter
+      name: node-exporter
+    spec:
+      tolerations:
+        - key: node-role.kubernetes.io/master
+          effect: NoSchedule
+      hostNetwork: true
+      hostPID: true
+      hostIPC: true
+      securityContext:
+        runAsUser: 0
+      containers:
+        - image: prom/node-exporter:v1.0.1
+          name: node-exporter
+          volumeMounts:
+            - mountPath: /run/systemd/private
+              name: systemd-socket
+              readOnly: true
+            - mountPath: /etc/disk.prom
+              name: disk
+            - mountPath: /etc/program.prom
+              name: program
+            - mountPath: /etc/localtime
+              name: localtime
+          env:
+            - name: DIR
+              value: "/etc"
+          args:
+            - "--collector.textfile.directory=$(DIR)"
+            - "--no-collector.arp"
+            - "--no-collector.bcache"
+            - "--no-collector.bonding"
+            - "--no-collector.conntrack"
+            - "--no-collector.edac"
+            - "--no-collector.entropy"
+            - "--no-collector.filefd"
+            - "--no-collector.diskstats"
+            - "--no-collector.hwmon"
+            - "--no-collector.infiniband"
+            - "--no-collector.ipvs"
+            - "--no-collector.netclass"
+            - "--no-collector.netdev"
+            - "--no-collector.netstat"
+            - "--no-collector.nfs"
+            - "--no-collector.nfsd"
+            - "--no-collector.pressure"
+            - "--no-collector.sockstat"
+            - "--no-collector.time"
+            - "--no-collector.timex"
+            - "--no-collector.xfs"
+            - "--no-collector.zfs"
+            - "--web.listen-address=:9101"
+          ports:
+            - containerPort: 9101
+              hostPort: 9101
+              name: scrape
+          livenessProbe:
+            httpGet:
+              path: /metrics
+              port: 9101
+            initialDelaySeconds: 30
+            timeoutSeconds: 10
+            periodSeconds: 1
+          readinessProbe:
+            failureThreshold: 5
+            httpGet:
+              path: /metrics
+              port: 9101
+            initialDelaySeconds: 10
+            timeoutSeconds: 10
+            periodSeconds: 2
+      volumes:
+        - hostPath:
+            path: /run/systemd/private
+          name: systemd-socket
+        - hostPath:
+            path: /etc/disk.prom
+            type: FileOrCreate
+          name: disk
+        - hostPath:
+            path: /etc/program.prom
+            type: FileOrCreate
+          name: program
+        - hostPath:
+            path: /etc/localtime
+            type: File
+          name: localtime
+
+
