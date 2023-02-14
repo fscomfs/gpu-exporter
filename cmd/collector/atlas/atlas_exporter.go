@@ -65,12 +65,12 @@ func (e *AtlasExporter) Collect(metricCh chan<- prometheus.Metric) {
 		allInfo, err := dsmi.AllDeviceInfo()
 		if err == nil {
 			for deviceIndex, deviceInfo := range allInfo {
-				usedMemory := deviceInfo.CoreRate * deviceInfo.Total / 100
-				used := prometheus.MustNewConstMetric(e.gpuInfoDesc, prometheus.GaugeValue, float64(usedMemory), string(deviceIndex), collector.MemoryFree, deviceInfo.ChipName, collector.NPU)
+				usedMemory := uint64(deviceInfo.CoreRate) * deviceInfo.Total / 100
+				used := prometheus.MustNewConstMetric(e.gpuInfoDesc, prometheus.GaugeValue, float64(usedMemory), cast.ToString(deviceIndex), collector.MemoryFree, deviceInfo.ChipName, collector.NPU)
 				metricCh <- used
 				free := prometheus.MustNewConstMetric(e.gpuInfoDesc, prometheus.GaugeValue, float64(deviceInfo.Total-usedMemory), cast.ToString(deviceIndex), collector.MemoryUsed, deviceInfo.ChipName, collector.NPU)
 				metricCh <- free
-				total := prometheus.MustNewConstMetric(e.gpuInfoDesc, prometheus.GaugeValue, float64(deviceInfo.Total), string(deviceIndex), collector.MemoryTotal, deviceInfo.ChipName, collector.NPU)
+				total := prometheus.MustNewConstMetric(e.gpuInfoDesc, prometheus.GaugeValue, float64(deviceInfo.Total), cast.ToString(deviceIndex), collector.MemoryTotal, deviceInfo.ChipName, collector.NPU)
 				metricCh <- total
 			}
 		}

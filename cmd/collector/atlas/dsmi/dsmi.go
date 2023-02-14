@@ -13,7 +13,7 @@ import "fmt"
 import "unsafe"
 
 type AtlasInfo struct {
-	Total    uint32
+	Total    uint64
 	Used     int32
 	CoreRate uint32
 	ChipType string
@@ -24,7 +24,7 @@ func AllDeviceInfo() (map[int32]AtlasInfo, error) {
 	infos := make(map[int32]AtlasInfo)
 	deviceCount := 0
 	ret := C.dsmi_get_device_count((*C.int)(unsafe.Pointer(&deviceCount)))
-	if ret == 0 {
+	if ret != 0 {
 		fmt.Println(deviceCount)
 		return infos, fmt.Errorf("device count=0")
 	}
@@ -38,15 +38,15 @@ func AllDeviceInfo() (map[int32]AtlasInfo, error) {
 			var chipInfo C.struct_dsmi_chip_info_stru
 			ret = C.dsmi_get_memory_info(C.int(v), &memInfo)
 			if ret == 0 {
-				s := C.long(memInfo.utiliza) * C.long(memInfo.memory_size) / 100.0
+				s := C.long(memInfo.utiliza) * C.long(memInfo.memory_size) * C.long(1000*1000) / 100.0
 				C.dsmi_get_device_utilization_rate(C.int(v), C.int(2), &putilization_rate)
 				C.dsmi_get_chip_info(C.int(v), &chipInfo)
 				info = AtlasInfo{
-					Total:    uint32(memInfo.memory_size),
+					Total:    uint64(memInfo.memory_size * C.ulonglong(1000*1000)),
 					Used:     int32(s),
 					CoreRate: uint32(putilization_rate),
-					ChipName: C.GoStringN((*C.char)(unsafe.Pointer(&chipInfo.chip_name[0])), 32),
-					ChipType: C.GoStringN((*C.char)(unsafe.Pointer(&chipInfo.chip_type[0])), 32),
+					ChipName: C.GoString((*C.char)(unsafe.Pointer(&chipInfo.chip_name))),
+					ChipType: C.GoString((*C.char)(unsafe.Pointer(&chipInfo.chip_type))),
 				}
 				infos[v] = info
 			}
@@ -67,7 +67,7 @@ func GetDeviceInfoByDeviceIds(ids []int32) (map[int32]AtlasInfo, error) {
 		s := C.long(memInfo.utiliza) * C.long(memInfo.memory_size) / 100.0
 		C.dsmi_get_device_utilization_rate(C.int(v), C.int(2), &putilization_rate)
 		info = AtlasInfo{
-			Total:    uint32(memInfo.memory_size),
+			Total:    uint64(memInfo.memory_size),
 			Used:     int32(s),
 			CoreRate: uint32(putilization_rate),
 		}
