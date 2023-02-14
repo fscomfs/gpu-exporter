@@ -17,7 +17,7 @@ spec:
     metadata:
       annotations:
         prometheus.io/scrape: 'true'
-        prometheus.io/port: &portStr ':9103'
+        prometheus.io/port: &portStr ':8956'
         prometheus.io/path: 'metrics'
       labels:
         app.kubernetes.io/name: "gpu-exporter"
@@ -25,20 +25,33 @@ spec:
       name: "gpu-exporter"
     spec:
       hostNetwork: true
+      imagePullSecrets:
+        - name: test-harbor-registry
       containers:
         - image: "192.168.1.186:8099/evtrain/cvmart-gpu-exporter:v1"
+          imagePullPolicy: Always
           securityContext:
             privileged: true
           env:
             - name: "EXPORTER_LISTEN"
-              value: *portStr
+              value: ":8956"
             - name: "EXPORTER_KUBERNETES"
               value: "true"
+            - name: "NVIDIA_VISIBLE_DEVICES"
+              value: "all"
           name: "gpu-exporter"
           ports:
             - name: "metrics"
-              containerPort: &portInt '9103'
+              containerPort: &portInt 8956
               hostPort: *portInt
+          volumeMounts:
+            - mountPath: /host
+              name: host-path
+              readOnly: true
+      volumes:
+        - name: host-path
+          hostPath:
+            path: /
 ---
 
 kind: Service
@@ -56,5 +69,5 @@ spec:
     app.kubernetes.io/version: "1.0.0"
   ports:
     - name: "metrics"
-      port: 9103
+      port: 8956
   type: NodePort
