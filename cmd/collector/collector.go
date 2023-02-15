@@ -20,6 +20,7 @@ const (
 	GpuType           QField = "gpuType"
 	Arg               QField = "arg"
 	ARCH              QField = "arch"
+	DEVICE            QField = "device"
 )
 
 var (
@@ -36,6 +37,9 @@ var (
 		{qField: Model, label: "model"},
 		{qField: GpuType, label: "gpuType"},
 		{qField: ARCH, label: "arch"},
+	}
+	DiskFields = []requiredField{
+		{qField: DEVICE, label: "device"},
 	}
 )
 

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/fscomfs/gpu-exporter/cmd/collector"
 	_ "github.com/fscomfs/gpu-exporter/cmd/collector/atlas"
+	_ "github.com/fscomfs/gpu-exporter/cmd/collector/disk"
 	_ "github.com/fscomfs/gpu-exporter/cmd/collector/nvidia"
 	_ "github.com/fscomfs/gpu-exporter/cmd/collector/test"
 	"github.com/go-kit/log"
