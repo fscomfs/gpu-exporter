@@ -26,9 +26,9 @@ spec:
     spec:
       hostNetwork: true
       imagePullSecrets:
-        - name: test-harbor-registry
+        - name: eagle-nest-registry-key
       containers:
-        - image: "192.168.1.186:8099/evtrain/cvmart-gpu-exporter:v1"
+        - image: "192.168.1.76:8099/evtrain/cvmart-gpu-exporter:v1"
           imagePullPolicy: Always
           securityContext:
             privileged: true
