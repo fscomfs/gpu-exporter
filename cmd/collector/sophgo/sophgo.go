@@ -66,9 +66,9 @@ func (e *SophgoExporter) Collect(metricCh chan<- prometheus.Metric) {
 	}
 	allInfo := bmctl.GetAllDeviceInfo()
 	for deviceIndex, deviceInfo := range allInfo {
-		used := prometheus.MustNewConstMetric(e.gpuInfoDesc, prometheus.GaugeValue, float64(deviceInfo.MemUsed), cast.ToString(deviceIndex), collector.MemoryFree, "bm1684", collector.TPU, runtime.GOARCH)
+		used := prometheus.MustNewConstMetric(e.gpuInfoDesc, prometheus.GaugeValue, float64(deviceInfo.MemUsed), cast.ToString(deviceIndex), collector.MemoryUsed, "bm1684", collector.TPU, runtime.GOARCH)
 		metricCh <- used
-		free := prometheus.MustNewConstMetric(e.gpuInfoDesc, prometheus.GaugeValue, float64(deviceInfo.MemTotal-deviceInfo.MemUsed), cast.ToString(deviceIndex), collector.MemoryUsed, "bm1684", collector.TPU, runtime.GOARCH)
+		free := prometheus.MustNewConstMetric(e.gpuInfoDesc, prometheus.GaugeValue, float64(deviceInfo.MemTotal-deviceInfo.MemUsed), cast.ToString(deviceIndex), collector.MemoryFree, "bm1684", collector.TPU, runtime.GOARCH)
 		metricCh <- free
 		total := prometheus.MustNewConstMetric(e.gpuInfoDesc, prometheus.GaugeValue, float64(deviceInfo.MemTotal), cast.ToString(deviceIndex), collector.MemoryTotal, "bm1684", collector.TPU, runtime.GOARCH)
 		metricCh <- total

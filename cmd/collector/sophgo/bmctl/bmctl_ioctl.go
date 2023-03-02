@@ -30,8 +30,8 @@ func BMCTL_GET_SMI_ATTR() cgoioctl.WR {
 type DeviceInfo struct {
 	DevId    int32
 	ChipId   int32
-	MemUsed  int32
-	MemTotal int32
+	MemUsed  int64
+	MemTotal int64
 	TpuUtil  int32
 }
 
@@ -69,8 +69,8 @@ func GetAllDeviceInfo() map[int]DeviceInfo {
 			infos[i] = DeviceInfo{
 				DevId:    int32(attr.dev_id),
 				ChipId:   int32(attr.chip_id),
-				MemUsed:  int32(attr.mem_used) * 1024 * 1024,
-				MemTotal: int32(attr.mem_total) * 1024 * 1024,
+				MemUsed:  int64(attr.mem_used) * 1024 * 1024,
+				MemTotal: int64(attr.mem_total) * 1024 * 1024,
 				TpuUtil:  int32(attr.tpu_util),
 			}
 		}

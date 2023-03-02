@@ -67,9 +67,9 @@ func (e *AtlasExporter) Collect(metricCh chan<- prometheus.Metric) {
 		if err == nil {
 			for deviceIndex, deviceInfo := range allInfo {
 				usedMemory := uint64(deviceInfo.CoreRate) * deviceInfo.Total / 100
-				used := prometheus.MustNewConstMetric(e.gpuInfoDesc, prometheus.GaugeValue, float64(usedMemory), cast.ToString(deviceIndex), collector.MemoryFree, deviceInfo.ChipName, collector.NPU, runtime.GOARCH)
+				used := prometheus.MustNewConstMetric(e.gpuInfoDesc, prometheus.GaugeValue, float64(usedMemory), cast.ToString(deviceIndex), collector.MemoryUsed, deviceInfo.ChipName, collector.NPU, runtime.GOARCH)
 				metricCh <- used
-				free := prometheus.MustNewConstMetric(e.gpuInfoDesc, prometheus.GaugeValue, float64(deviceInfo.Total-usedMemory), cast.ToString(deviceIndex), collector.MemoryUsed, deviceInfo.ChipName, collector.NPU, runtime.GOARCH)
+				free := prometheus.MustNewConstMetric(e.gpuInfoDesc, prometheus.GaugeValue, float64(deviceInfo.Total-usedMemory), cast.ToString(deviceIndex), collector.MemoryFree, deviceInfo.ChipName, collector.NPU, runtime.GOARCH)
 				metricCh <- free
 				total := prometheus.MustNewConstMetric(e.gpuInfoDesc, prometheus.GaugeValue, float64(deviceInfo.Total), cast.ToString(deviceIndex), collector.MemoryTotal, deviceInfo.ChipName, collector.NPU, runtime.GOARCH)
 				metricCh <- total
