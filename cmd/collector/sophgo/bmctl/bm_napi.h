@@ -1,7 +1,6 @@
 #ifndef __BM_DRIVER_VNIC_H_
 #define __BM_DRIVER_VNIC_H_
 
-#include <sys/io.h>
 
 #define ETH_MTU 65536
 #define VETH_DEVICE_NAME "veth"

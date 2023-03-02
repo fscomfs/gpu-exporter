@@ -336,12 +336,6 @@ struct ce_desc {
 	uint8_t      iv[16];
 };
 
-struct ce_base {
-	uint64_t     src;
-	uint64_t     dst;
-	uint64_t     len;
-	bool direction;
-};
 
 struct ce_reg {
 	uint32_t ctrl; //control
