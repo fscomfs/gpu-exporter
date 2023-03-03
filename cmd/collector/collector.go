@@ -15,6 +15,7 @@ const (
 	Nvidia                   = "nvidia"
 	NPU                      = "npu"
 	TPU                      = "tpu"
+	MLU                      = "mlu"
 	Index             QField = "index"
 	Model             QField = "model"
 	GpuType           QField = "gpuType"

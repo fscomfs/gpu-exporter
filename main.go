@@ -6,6 +6,7 @@ import (
 	"github.com/fscomfs/gpu-exporter/cmd/collector"
 	_ "github.com/fscomfs/gpu-exporter/cmd/collector/atlas"
 	_ "github.com/fscomfs/gpu-exporter/cmd/collector/disk"
+	_ "github.com/fscomfs/gpu-exporter/cmd/collector/mlu"
 	_ "github.com/fscomfs/gpu-exporter/cmd/collector/nvidia"
 	_ "github.com/fscomfs/gpu-exporter/cmd/collector/sophgo"
 	_ "github.com/fscomfs/gpu-exporter/cmd/collector/test"
@@ -25,7 +26,7 @@ const (
 	redirectPageTemplate = `<html lang="en">
 <head><title>Nvidia GPU Exporter</title></head>
 <body>
-<h1>Nvidia GPU Exporter</h1>
+<h1>CVMART GPU Exporter</h1>
 <p><a href="%s">Metrics</a></p>
 </body>
 </html>
