@@ -5,14 +5,12 @@ metadata:
   namespace: "kube-system"
   labels:
     app.kubernetes.io/name: "gpu-exporter"
-    app.kubernetes.io/version: "1.0.0"
 spec:
   updateStrategy:
     type: RollingUpdate
   selector:
     matchLabels:
       app.kubernetes.io/name: "gpu-exporter"
-      app.kubernetes.io/version: "1.0.0"
   template:
     metadata:
       annotations:
@@ -21,7 +19,6 @@ spec:
         prometheus.io/path: 'metrics'
       labels:
         app.kubernetes.io/name: "gpu-exporter"
-        app.kubernetes.io/version: "1.0.0"
       name: "gpu-exporter"
     spec:
       hostNetwork: true
