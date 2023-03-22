@@ -1,5 +1,6 @@
 package atlas
 
+import "C"
 import (
 	"fmt"
 	"github.com/fscomfs/gpu-exporter/cmd/collector"
@@ -87,12 +88,12 @@ func (e *AtlasExporter) Collect(metricCh chan<- prometheus.Metric) {
 					memoryInfo, _ := dc.DcGetMemoryInfo(carIndex, deviceId)
 					chipInfo, _ := dc.DcGetChipInfo(carIndex, deviceId)
 					coreRate, _ := dc.DcGetDeviceUtilizationRate(carIndex, deviceId, common.AICore)
-					usedMemory := uint64(coreRate) * memoryInfo.MemorySize / 100
+					usedMemory := uint64(coreRate) * memoryInfo.MemorySize * uint64(1000*1000) / 100
 					used := prometheus.MustNewConstMetric(e.gpuInfoDesc, prometheus.GaugeValue, float64(usedMemory), cast.ToString(index), collector.MemoryUsed, chipInfo.Name, collector.NPU, runtime.GOARCH)
 					metricCh <- used
-					free := prometheus.MustNewConstMetric(e.gpuInfoDesc, prometheus.GaugeValue, float64(memoryInfo.MemoryAvailable), cast.ToString(index), collector.MemoryFree, chipInfo.Name, collector.NPU, runtime.GOARCH)
+					free := prometheus.MustNewConstMetric(e.gpuInfoDesc, prometheus.GaugeValue, float64(memoryInfo.MemorySize-usedMemory), cast.ToString(index), collector.MemoryFree, chipInfo.Name, collector.NPU, runtime.GOARCH)
 					metricCh <- free
-					total := prometheus.MustNewConstMetric(e.gpuInfoDesc, prometheus.GaugeValue, float64(memoryInfo.MemorySize), cast.ToString(index), collector.MemoryTotal, chipInfo.Name, collector.NPU, runtime.GOARCH)
+					total := prometheus.MustNewConstMetric(e.gpuInfoDesc, prometheus.GaugeValue, float64(memoryInfo.MemorySize*uint64(1000*1000)), cast.ToString(index), collector.MemoryTotal, chipInfo.Name, collector.NPU, runtime.GOARCH)
 					metricCh <- total
 					index++
 				}
