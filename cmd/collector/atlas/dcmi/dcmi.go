@@ -340,9 +340,9 @@ func (d *DcManager) DcInit() error {
 	//if err != nil {
 	//	return err
 	//}
-	//cDcmiTemplateName := C.CString(dcmiLibPath)
-	//defer C.free(unsafe.Pointer(cDcmiTemplateName))
-	if retCode := C.dcmiInit_dl(dcmiLibraryName); retCode != C.SUCCESS {
+	cDcmiTemplateName := C.CString(dcmiLibraryName)
+	defer C.free(unsafe.Pointer(cDcmiTemplateName))
+	if retCode := C.dcmiInit_dl(cDcmiTemplateName); retCode != C.SUCCESS {
 		return fmt.Errorf("dcmi lib load failed, error code: %d", int32(retCode))
 	}
 	if retCode := C.dcmi_init_new(); retCode != C.SUCCESS {
