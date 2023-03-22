@@ -45,10 +45,26 @@ spec:
             - mountPath: /host
               name: host-path
               readOnly: true
+            - mountPath: /run
+              name: run
+            - mountPath: /etc/hdcBasic.cfg
+              name: hdc
+            - mountPath: /usr/lib64
+              name: lib
       volumes:
         - name: host-path
           hostPath:
             path: /
+        - name: run
+          hostPath:
+            path: /run
+        - name: lib
+          hostPath:
+            path: /usr/lib64
+        - name: hdc
+          hostPath:
+            path: /etc/hdcBasic.cfg
+
 ---
 
 kind: Service
