@@ -246,7 +246,7 @@ func (c *cndev) GetDeviceMLULinkVersion(idx, link uint) (uint, uint, uint, error
 }
 
 func (c *cndev) GetDeviceModel(idx uint) string {
-	return C.GoString(C.getCardNameStringByDevId(C.int(idx)))
+	return C.GoString(C.cndevGetCardNameStringByDevId(C.int(idx)))
 }
 
 func (c *cndev) GetDeviceNUMANodeID(idx uint) (int, error) {

@@ -27,6 +27,7 @@ func init() {
 	err := client.Init()
 	if err != nil {
 		disabledFlag = true
+		log.Printf("mlu init fail %+v", err)
 	} else {
 		collector.Register("mlu", new())
 		log.Printf("mlu init success")
@@ -72,12 +73,12 @@ func (e *MluExporter) Collect(metricCh chan<- prometheus.Metric) {
 		for i := uint(0); i < deviceCount; i++ {
 			pyUsed, pyTotal, _, _, err := client.GetDeviceMemory(i)
 			model := client.GetDeviceModel(i)
-			if err != nil {
-				used := prometheus.MustNewConstMetric(e.gpuInfoDesc, prometheus.GaugeValue, float64(pyUsed*1024), cast.ToString(i), collector.MemoryUsed, model, collector.MLU, runtime.GOARCH)
+			if err == nil {
+				used := prometheus.MustNewConstMetric(e.gpuInfoDesc, prometheus.GaugeValue, float64(pyUsed*1024*1024), cast.ToString(i), collector.MemoryUsed, model, collector.MLU, runtime.GOARCH)
 				metricCh <- used
-				free := prometheus.MustNewConstMetric(e.gpuInfoDesc, prometheus.GaugeValue, float64((pyTotal-pyUsed)*1024), cast.ToString(i), collector.MemoryFree, model, collector.MLU, runtime.GOARCH)
+				free := prometheus.MustNewConstMetric(e.gpuInfoDesc, prometheus.GaugeValue, float64((pyTotal-pyUsed)*1024*1024), cast.ToString(i), collector.MemoryFree, model, collector.MLU, runtime.GOARCH)
 				metricCh <- free
-				total := prometheus.MustNewConstMetric(e.gpuInfoDesc, prometheus.GaugeValue, float64(pyTotal*1024), cast.ToString(i), collector.MemoryTotal, model, collector.MLU, runtime.GOARCH)
+				total := prometheus.MustNewConstMetric(e.gpuInfoDesc, prometheus.GaugeValue, float64(pyTotal*1024*1024), cast.ToString(i), collector.MemoryTotal, model, collector.MLU, runtime.GOARCH)
 				metricCh <- total
 			}
 		}
