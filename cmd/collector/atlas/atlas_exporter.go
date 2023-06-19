@@ -75,6 +75,11 @@ func (e *AtlasExporter) Collect(metricCh chan<- prometheus.Metric) {
 	if disabledFlag {
 		return
 	}
+	defer func() {
+		if error := recover(); error != nil {
+			log.Printf("Collect panic error:%+v", error)
+		}
+	}()
 	if e.dcmi {
 		dc.DcInit()
 		defer dc.DcShutDown()
@@ -85,7 +90,11 @@ func (e *AtlasExporter) Collect(metricCh chan<- prometheus.Metric) {
 			for _, carIndex := range carList {
 				deviceIdMax, _ := dc.DcGetDeviceNumInCard(carIndex)
 				for deviceId := int32(0); deviceId < deviceIdMax; deviceId++ {
-					memoryInfo, _ := dc.DcGetMemoryInfo(carIndex, deviceId)
+					memoryInfo, errorInfo := dc.DcGetMemoryInfo(carIndex, deviceId)
+					if errorInfo != nil {
+						log.Printf("Get MemoryInfo error:%+v", errorInfo)
+						continue
+					}
 					chipInfo, _ := dc.DcGetChipInfo(carIndex, deviceId)
 					coreRate, _ := dc.DcGetDeviceUtilizationRate(carIndex, deviceId, common.AICore)
 					usedMemory := uint64(coreRate) * memoryInfo.MemorySize * uint64(1000*1000) / 100
